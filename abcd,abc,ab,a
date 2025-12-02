@@ -1,0 +1,36 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+char str[100];
+%}
+
+%%
+
+[a-zA-Z]+   {
+                strcpy(str, yytext);
+                int len = strlen(str);
+                for(int i = len; i > 0; i--) {
+                    for(int j = 0; j < i; j++) {
+                        printf("%c", str[j]);
+                    }
+                    printf("\n");
+                }
+            }
+
+.|\n        ;   // ignore everything else
+
+%%
+
+int main()
+{
+    printf("Enter a string:\n");
+    yylex();
+    return 0;
+}
+
+compile code:
+lex generate_pattern.l
+gcc lex.yy.c -o generate_pattern -ll
+./generate_pattern
+
