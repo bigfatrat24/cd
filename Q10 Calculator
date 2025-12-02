@@ -1,0 +1,58 @@
+Lex code:
+
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+[0-9]+        { yylval = atoi(yytext); return NUMBER; }
+[\t ]+        ;
+[\+\-\*\/\(\)]  { return yytext[0]; }
+\n            { return 0; }
+.             { return yytext[0]; }
+
+%%
+
+int yywrap(){ return 1; }
+
+YACC Code:
+%{
+#include <stdio.h>
+#include <stdlib.h>
+int yylex();
+void yyerror(const char *s);
+%}
+
+%token NUMBER
+
+%%
+
+E : E '+' E   { printf("%d\n", $1 + $3); }
+  | E '-' E   { printf("%d\n", $1 - $3); }
+  | E '*' E   { printf("%d\n", $1 * $3); }
+  | E '/' E   { 
+                if($3 == 0){ printf("Error: Divide by zero\n"); exit(1);} 
+                printf("%d\n", $1 / $3); 
+              }
+  | '(' E ')' { $$ = $2; }
+  | NUMBER    { $$ = $1; }
+;
+
+%%
+
+int main() {
+    printf("Enter expression: ");
+    yyparse();
+    return 0;
+}
+
+void yyerror(const char *s) {
+    printf("Invalid expression\n");
+}
+
+compile code:
+yacc -d calc.y
+lex calc.l
+cc lex.yy.c y.tab.c -lfl -o calc
+./calc
