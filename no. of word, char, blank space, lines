@@ -1,0 +1,46 @@
+%{
+#include <stdio.h>
+
+int word_count = 0;
+int char_count = 0;
+int space_count = 0;
+int line_count = 0;
+%}
+
+%%
+
+[ \t]+           { space_count += yyleng; }      // spaces & tabs
+\n               { line_count++; char_count++; } // newline is a character
+[A-Za-z0-9_]+    { word_count++; char_count += yyleng; } // word
+.                { char_count++; }               // any other character
+
+%%
+
+int main(int argc, char *argv[])
+{
+    if (argc > 1) {
+        yyin = fopen(argv[1], "r");
+        if (!yyin) {
+            printf("Error opening file.\n");
+            return 1;
+        }
+    } else {
+        printf("Usage: ./count_wcbl filename.c\n");
+        return 0;
+    }
+
+    yylex();
+
+    printf("\n=== File Statistics ===\n");
+    printf("Characters : %d\n", char_count);
+    printf("Words      : %d\n", word_count);
+    printf("Spaces     : %d\n", space_count);
+    printf("Lines      : %d\n", line_count);
+
+    return 0;
+}
+
+compile code:
+lex count_wcbl.l
+gcc lex.yy.c -o count_wcbl -ll
+./count_wcbl input.txt
