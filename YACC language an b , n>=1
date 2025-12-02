@@ -1,0 +1,58 @@
+Lex code:
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+a           { return A; }
+b           { return B; }
+[ \t\n]+    { /* ignore whitespace */ }
+.           { return yytext[0]; }
+
+%%
+
+int yywrap() { return 1; }
+
+YACC Code:
+%{
+#include <stdio.h>
+void yyerror(const char *s);
+int yylex();
+%}
+
+%token A B
+
+%%
+
+S : A Blist
+  | A
+  ;
+
+Blist : B Blist
+      | B
+      ;
+
+%%
+
+int main()
+{
+    printf("Enter string:\n");
+    if (yyparse() == 0)
+        printf("String is valid\n");
+    else
+        printf("String is invalid\n");
+    return 0;
+}
+
+void yyerror(const char *s)
+{
+    printf("String is invalid\n");
+}
+
+compile code:
+yacc -d abn_yacc.y
+lex abn_lex.l
+gcc y.tab.c lex.yy.c -o abn_recognizer -ll
+./abn_recognizer
+
