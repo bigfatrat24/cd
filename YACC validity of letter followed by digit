@@ -1,0 +1,52 @@
+Lex code:
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+[a-z][0-9]      { return VAR; }   // valid variable
+[ \t\n]+        { /* ignore whitespace */ }
+.               { return yytext[0]; } // anything else
+
+%%
+
+int yywrap() { return 1; }
+
+YACC Code:
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int yylex();
+void yyerror(const char *s);
+%}
+
+%token VAR
+
+%%
+input : VAR
+      ;
+
+%%
+
+int main()
+{
+    printf("Enter variable:\n");
+    if (yyparse() == 0)
+        printf("Valid variable\n");
+    else
+        printf("Invalid variable\n");
+    return 0;
+}
+
+void yyerror(const char *s)
+{
+    printf("Invalid variable\n");
+}
+
+compile code:
+yacc -d var_yacc.y
+lex var_lex.l
+gcc y.tab.c lex.yy.c -o var_checker -ll
+./var_checker
