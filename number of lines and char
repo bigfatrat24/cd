@@ -1,0 +1,37 @@
+%{
+#include <stdio.h>
+
+int line_count = 0;
+int char_count = 0;
+%}
+
+%%
+
+\n      { line_count++; char_count++; }   // Count newline as a character and a line
+.       { char_count++; }                // Count every other character
+
+%%
+
+int main(int argc, char *argv[]) {
+    if(argc > 1) {
+        FILE *file = fopen(argv[1], "r");
+        if(!file) {
+            printf("Cannot open file %s\n", argv[1]);
+            return 1;
+        }
+        yyin = file;   // Set Lex input to file
+    }
+
+    yylex();  // Start scanning
+
+    printf("Number of lines: %d\n", line_count);
+    printf("Number of characters: %d\n", char_count);
+
+    return 0;
+}
+
+Compiling code:
+lex count_lines_chars.l
+gcc lex.yy.c -o count_lines_chars -ll
+./count_lines_chars input.txt
+
