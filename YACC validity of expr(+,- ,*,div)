@@ -1,0 +1,57 @@
+lex code
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+[0-9]+            { yylval = atoi(yytext); return NUMBER; }
+[ \t\n]+          { /* ignore whitespace */ }
+[-+*/()]          { return yytext[0]; }
+.                 { return yytext[0]; }
+
+%%
+
+int yywrap() { return 1; }
+
+YACC code
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int yylex();
+void yyerror(const char *s);
+%}
+
+%token NUMBER
+
+%%
+E : E '+' E
+  | E '-' E
+  | E '*' E
+  | E '/' E
+  | '(' E ')'
+  | NUMBER
+  ;
+%%
+
+int main()
+{
+    printf("Enter expression:\n");
+    if (yyparse() == 0)
+        printf("Valid expression\n");
+    else
+        printf("Invalid expression\n");
+}
+
+void yyerror(const char *s)
+{
+    printf("Invalid expression\n");
+}
+
+compile code:
+yacc -d expr_yacc.y
+lex expr_lex.l
+gcc lex.yy.c y.tab.c -o expr
+./expr
+
