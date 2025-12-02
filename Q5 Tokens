@@ -1,0 +1,40 @@
+cat > tokenizer.l <<'EOF'
+%{
+#include <stdio.h>
+%}
+
+DIGIT       [0-9]
+LETTER      [a-zA-Z]
+ID          {LETTER}({LETTER}|{DIGIT})*
+INT         {DIGIT}+
+FLOAT       {DIGIT}"."{DIGIT}+
+
+KEYWORD     "if"|"else"|"for"|"while"|"return"|"int"|"float"|"char"|"void"
+OP          "=="|"!="|"<="|">="|"+"|"-"|"*"|"/"|"="|"<"|">"
+
+%%
+
+{KEYWORD}       { printf("KEYWORD: %s\n", yytext); }
+{FLOAT}         { printf("FLOAT: %s\n", yytext); }
+{INT}           { printf("INTEGER: %s\n", yytext); }
+{ID}            { printf("IDENTIFIER: %s\n", yytext); }
+{OP}            { printf("OPERATOR: %s\n", yytext); }
+
+\/\*([^*]|\*+[^/])*\*\/   { printf("MULTI-LINE COMMENT: %s\n", yytext); }
+"//".*          { printf("SINGLE-LINE COMMENT: %s\n", yytext); }
+
+[ \t\n]         ;
+.               { printf("UNKNOWN: %s\n", yytext); }
+
+%%
+
+int main() {
+    yylex();
+    return 0;
+}
+
+Compile code:
+lex tokenizer.l
+cc lex.yy.c -ll -o tokenizer
+./tokenizer < input.txt
+
