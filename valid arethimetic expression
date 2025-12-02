@@ -1,0 +1,30 @@
+%{
+#include <stdio.h>
+%}
+
+DIGIT   [0-9]
+SPACE   [ \t\n]
+
+%%
+
+\(              { printf("(\n"); }
+\)              { printf(")\n"); }
+{DIGIT}+        { printf("NUMBER: %s\n", yytext); }
+[\+\-\*\/]      { printf("OPERATOR: %s\n", yytext); }
+{SPACE}+        ;
+.               { printf("INVALID: %s\n", yytext); }
+
+%%
+
+int main() {
+    printf("Enter expression: ");
+    yylex();
+    return 0;
+}
+
+int yywrap() { return 1; }
+
+compile code:
+lex expr.l
+cc lex.yy.c -ll -o expr
+./expr
