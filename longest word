@@ -1,0 +1,31 @@
+%{
+#include <stdio.h>
+#include <string.h>
+
+char longest[1024] = "";
+%}
+
+%%
+
+([A-Za-z]+)   {
+                  if (strlen(yytext) > strlen(longest)) {
+                      strcpy(longest, yytext);
+                  }
+              }
+
+.|\n          { /* ignore everything else */ }
+
+%%
+
+int main()
+{
+    printf("Enter text (Ctrl+D to finish):\n");
+    yylex();
+    printf("Longest word: %s\n", longest);
+    return 0;
+}
+
+compile code:
+lex longest_word.l
+gcc lex.yy.c -o longest_word -ll
+./longest_word
