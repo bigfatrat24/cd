@@ -1,0 +1,59 @@
+Lex Code:
+%{
+#include "y.tab.h"
+%}
+
+%%
+
+a           { return A; }
+b           { return B; }
+[ \t\n]+    { /* ignore whitespace */ }
+.           { return yytext[0]; }
+
+%%
+
+int yywrap() { return 1; }
+
+YACC code:
+%{
+#include <stdio.h>
+#include <stdlib.h>
+
+int count_a = 0;
+int count_b = 0;
+%}
+
+%token A B
+
+%%
+S : T { 
+        if(count_a == count_b && count_a >= 10)
+            printf("Valid string\n");
+        else
+            printf("Invalid string\n");
+     }
+  ;
+
+T : 
+  | T A   { count_a++; }
+  | T B   { count_b++; }
+  ;
+%%
+
+int main() {
+    if(yyparse()==0)
+        ;
+    return 0;
+}
+
+int yyerror() {
+    printf("Invalid string\n");
+    exit(0);
+}
+
+Compile code:
+yacc -d ab10.y
+lex ab10.l
+cc lex.yy.c y.tab.c -lfl -o ab10
+./ab10
+
