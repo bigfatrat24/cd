@@ -1,0 +1,33 @@
+%{
+#include <stdio.h>
+%}
+
+%%
+
+[a-z]   { 
+            char c = yytext[0] + 3;
+            if (c > 'z') c = c - 26;
+            printf("%c", c);
+        }
+
+[A-Z]   {
+            char c = yytext[0] + 3;
+            if (c > 'Z') c = c - 26;
+            printf("%c", c);
+        }
+
+.       { printf("%s", yytext); }
+
+%%
+
+int main()
+{
+    printf("Enter text to encrypt (Ctrl+D to finish):\n");
+    yylex();
+    return 0;
+}
+
+compile code:
+lex caesar_cipher.l
+gcc lex.yy.c -o caesar_cipher -ll
+./caesar_cipher
